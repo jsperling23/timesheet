@@ -1,0 +1,54 @@
+{% extends "base.j2" %}
+{% block content %}
+    <form action="{{ url_for('createSheet') }}" method="GET">
+                        <input type="hidden" name="userID" value="{{ userID }}">
+                        <button type="submit">Create New Time Sheet</button>
+    </form>
+    <br></br>
+    <form action="/submit" method="POST">
+        <table border="1">
+            <thead>
+                <tr>
+                    <th colspan="3">Time Sheet</th>
+                </tr>
+            </thead>
+            <tbody id="line-items">
+                <tr>
+                    <td>Hourly Rate<input type="number" step="0.01" name="rate" placeholder="Enter rate"></td>
+                </tr>
+                {% for item in items.lineItems %}
+                <tr>
+                    <td><input type="date" name="date" value="{{ item.date }}"></td>
+                    <td><input type="number" step="0.1" name="rate" value="{{ item.hours }}"></td>
+                    <td><button type="button" onclick="removeRow(this)">Remove</button></td>
+                </tr>
+                {% endfor %}
+                <tr>
+                    <td colspan="3">Description <input type="text" name="description" placeholder="Enter description" ></td>
+                </tr>
+            </tbody>
+        </table>
+        <button type="button" onclick="addRow()">Add Item</button>
+        <br><br>
+        <input type="submit" value="Submit Invoice">
+    </form>
+
+    <script>
+        function addRow() {
+            const body = document.getElementById('line-items');
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td><input type="date" name="date"></td>
+                <td><input type="number" step="0.1" name="rate"></td>
+                <td><button type="button" onclick="removeRow(this)">Remove</button></td>
+            `;
+            body.appendChild(newRow);
+        }
+
+        function removeRow(button) {
+            const row = button.closest('tr');
+            row.remove();
+        }
+    </script>
+
+{% endblock %}

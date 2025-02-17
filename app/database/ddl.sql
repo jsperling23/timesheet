@@ -1,27 +1,19 @@
-SET FOREIGN_KEY_CHECKS = 0
-DROP TABLE IF EXISTS Users, TimeSheets, LineItems
+SET FOREIGN_KEY_CHECKS = 0;
+DROP TABLE IF EXISTS Users, TimeSheets;
 
 CREATE TABLE Users(
-    userID int AUTO_INCREMENT NOT NULL UNIQUE,
+    userID INT AUTO_INCREMENT NOT NULL UNIQUE,
     username VARCHAR(100) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     PRIMARY KEY (userID)
 );
 
 CREATE TABLE TimeSheets(
-    sheetID int AUTO_INCREMENT NOT NULL UNIQUE,
-    lineItem int NOT NULL,
-    rate DECIMAL(3, 1),
+    sheetID INT AUTO_INCREMENT NOT NULL UNIQUE,
+    userID INT NOT NULL,
+    rate DECIMAL(3, 2),
     description VARCHAR(255),
+    lineItems JSON,
     PRIMARY KEY (sheetID),
-    FOREIGN KEY (lineItem) REFERENCES LineItems(itemID)
+    FOREIGN KEY (userID) REFERENCES Users(userID)
 );
-
-CREATE TABLE LineItems(
-    itemID into AUTO_INCREMENT NOT NULL UNIQUE,
-    sheetID int NOT NULL,
-    date DATE NOT NULL,
-    hours DECIMAL(3, 1),
-    PRIMARY KEY (itemID),
-    FOREIGN KEY (sheetID) REFERENCES TimeSheets(sheetID) ON DELETE CASCADE
-)
