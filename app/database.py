@@ -22,17 +22,15 @@ class Database:
         cnx = None
         try:
             # setup connection and execute query
-            cnx = mysql.connector.connect(**self._config)
+            cnx = mysql.connector.connect(**self._config, autocommit=True)
             print("connection successful")
             cursor = cnx.cursor()
             cursor.execute(query, params)
-
             if query.startswith(("INSERT", "UPDATE", "DELETE")):
-                cnx.commit()
                 data = ["success", cursor.lastrowid]
-                print("Transaction committed")
             else:
-                data = cursor.fetchall()
+                res = cursor.fetchall()
+                data = [list(row) for row in res]
 
         # error handling
         except mysql.connector.Error as err:

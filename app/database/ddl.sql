@@ -11,7 +11,7 @@ CREATE TABLE Users(
 CREATE TABLE TimeSheets(
     sheetID INT AUTO_INCREMENT NOT NULL UNIQUE,
     userID INT NOT NULL,
-    rate DECIMAL(3, 2),
+    rate DECIMAL(5, 2),
     description VARCHAR(255),
     lineItems JSON,
     PRIMARY KEY (sheetID),

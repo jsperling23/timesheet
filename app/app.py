@@ -1,4 +1,5 @@
 import os
+import json
 
 from flask import Flask, render_template, request, redirect, url_for
 from dotenv import load_dotenv
@@ -33,6 +34,11 @@ timeSheet = TimeSheet()
 def home():
     if request.method == "GET":
         items = timeSheet.getSheets(db, 1)
+        for item in items:
+            if item[4]:
+                item[4] = json.loads(item[4])
+        for value in items[0][4].values():
+            print(value)
         return render_template("index.j2", items=items, userID=1)
 
 
@@ -42,10 +48,35 @@ def createSheet():
     timeSheet.createSheet(db, userID)
     return redirect(url_for('home'))
 
-@app.route('/update', methods=["POST"])
-def createSheet():
-    userID = request.args.get('userID')
-    timeSheet.createSheet(db, userID)
+
+@app.route('/save', methods=["POST"])
+def saveSheet():
+    sheetID = request.form.get('sheetID')
+    rate = request.form.get('rate')
+    description = request.form.get('description')
+    dates = request.form.getlist('date')
+    hours = request.form.getlist('hours')
+    lineItems = {}
+    for i in range(len(dates)):
+        lineItems[i] = {"date": dates[i], "hours": hours[i]}
+    lineItems = json.dumps(lineItems)
+    print(f'sheetID: {sheetID}\n Rate: {rate}\n Description: {description}\n\
+            Line Items: {lineItems}')
+    res = timeSheet.saveSheet(db, rate, description, lineItems, sheetID)
+    if res:
+        print("success")
+    else:
+        print("loser bitch")
     return redirect(url_for('home'))
+
+
+@app.route('/delete', methods=["GET"])
+def deleteSheet():
+    sheetID = request.args.get('sheetID')
+    print("Delete Imminent, sheet ID: ", sheetID)
+    timeSheet.deleteSheet(db, sheetID)
+    return redirect(url_for('home'))
+
+
 if __name__ == "__main__":
     app.run(port=5000, debug=True)

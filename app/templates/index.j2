@@ -5,41 +5,56 @@
                         <button type="submit">Create New Time Sheet</button>
     </form>
     <br></br>
-    <form action="/submit" method="POST">
+
+    {% for item in items %}
+    <form action="{{ url_for('saveSheet') }}" method="POST">
+        <input type="hidden" id="sheetID" name="sheetID" value="{{ item[0] }}">
         <table border="1">
             <thead>
                 <tr>
                     <th colspan="3">Time Sheet</th>
                 </tr>
             </thead>
-            <tbody id="line-items">
+            <tbody id="{{ item[0] }}" onload="calculatePay('{{ item[0] }}')">
                 <tr>
-                    <td>Hourly Rate<input type="number" step="0.01" name="rate" placeholder="Enter rate"></td>
+                    <td>Hourly Rate: <input type="number" step="0.01" oninput="calculatePay({{ item[0] }})" name="rate" id=rate_{{ item[0] }} value="{{ item[2] }}"></td>
                 </tr>
-                {% for item in items.lineItems %}
                 <tr>
-                    <td><input type="date" name="date" value="{{ item.date }}"></td>
-                    <td><input type="number" step="0.1" name="rate" value="{{ item.hours }}"></td>
-                    <td><button type="button" onclick="removeRow(this)">Remove</button></td>
+                    <td colspan="3">Description: <input type="text" name="description" value="{{ item[3] }}" ></td>
                 </tr>
-                {% endfor %}
                 <tr>
-                    <td colspan="3">Description <input type="text" name="description" placeholder="Enter description" ></td>
+                    <td colspan="3" id=pay_{{ item[0] }}>Total Pay: $0</td>
                 </tr>
+                {% if item[4] %}
+                    {% for line in item[4].values() %}
+                    <tr>
+                        <td>Date: <input type="date" name="date" value="{{ line['date'] }}"></td>
+                        <td>Hours Worked: <input type="number" step="0.1" id=hours_{{ item[0] }} name="hours" value="{{ line['hours'] }}"></td>
+                        <td><button type="button" onclick="removeRow(this)">Remove</button></td>
+                    </tr>
+                    {% endfor %}
+                {% endif %}
             </tbody>
         </table>
-        <button type="button" onclick="addRow()">Add Item</button>
-        <br><br>
-        <input type="submit" value="Submit Invoice">
+        <button type="button" onclick="addRow({{ item[0] }})">Add Item</button>
+        <input type="submit" value="Save">
     </form>
+    <form action="{{ url_for('deleteSheet') }}" method="GET">
+                        <input type="hidden" name="sheetID" value="{{ item[0] }}">
+                        <button type="submit">Delete</button>
+    </form>
+    <br></br>
+    <br></br>
+    {% endfor %}
 
     <script>
-        function addRow() {
-            const body = document.getElementById('line-items');
+        function addRow(sheetID) {
+            const body = document.getElementById(sheetID);
             const newRow = document.createElement('tr');
+            const lastRow = document.getElementById("pay_" + sheetID)
             newRow.innerHTML = `
                 <td><input type="date" name="date"></td>
-                <td><input type="number" step="0.1" name="rate"></td>
+                <td><input type="number" step="0.1" name="hours"></td>
                 <td><button type="button" onclick="removeRow(this)">Remove</button></td>
             `;
             body.appendChild(newRow);
@@ -49,6 +64,31 @@
             const row = button.closest('tr');
             row.remove();
         }
+
+        function calculatePay(sheetID) {
+            let pay = 0;
+            let hours = 0;
+            const payElement = document.getElementById("pay_" + sheetID)
+            const rate = document.getElementById("rate_" + sheetID);
+            const hourElements = document.querySelectorAll("#hours_" + sheetID);
+            hourElements.forEach((element) => {
+                if (element.value && !isNaN(parseFloat(element.value))) {
+                    hours += parseFloat(element.value);
+                };    
+            });
+
+            if (rate.value && !isNaN(parseFloat(rate.value))) {
+                pay = hours * parseFloat(rate.value);
+            };
+            
+            payElement.textContent = `Total Pay: $${pay.toFixed(2)}`;
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            {% for item in items %}
+                calculatePay('{{ item[0] }}');
+            {% endfor %}
+        });
     </script>
 
 {% endblock %}
