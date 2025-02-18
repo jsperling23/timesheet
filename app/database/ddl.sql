@@ -1,19 +1,10 @@
 SET FOREIGN_KEY_CHECKS = 0;
-DROP TABLE IF EXISTS Users, TimeSheets;
-
-CREATE TABLE Users(
-    userID INT AUTO_INCREMENT NOT NULL UNIQUE,
-    username VARCHAR(100) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    PRIMARY KEY (userID)
-);
+DROP TABLE IF EXISTS TimeSheets;
 
 CREATE TABLE TimeSheets(
     sheetID INT AUTO_INCREMENT NOT NULL UNIQUE,
-    userID INT NOT NULL,
     rate DECIMAL(5, 2),
     description VARCHAR(255),
     lineItems JSON,
-    PRIMARY KEY (sheetID),
-    FOREIGN KEY (userID) REFERENCES Users(userID)
+    PRIMARY KEY (sheetID)
 );

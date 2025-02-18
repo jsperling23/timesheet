@@ -1,23 +1,21 @@
 class TimeSheet:
-    def getSheets(self, db: object, userID: int) -> dict:
+    def getSheets(self, db: object) -> dict:
         """
-        Takes in a database object and user ID returning a dictionary
-        containing all the time sheets for a specific user.
+        Takes in a database object returning a list
+        containing all the currently saved time sheets.
         """
-        query = "SELECT * FROM TimeSheets WHERE userID = %s;"
-        params = [userID]
-        res = db.executeQuery(query, params)
+        query = "SELECT * FROM TimeSheets"
+        res = db.executeQuery(query, [])
         return res
 
-    def createSheet(self, db: object, userID: int) -> bool:
+    def createSheet(self, db: object) -> bool:
         """
-        Takes in a database object and a user ID returning True if the sheet
+        Takes in a database object returning True if the sheet
         creation was successful and False otherwise.
         """
-        query = "INSERT INTO TimeSheets(userID) VALUES \
-                ((SELECT userID FROM Users WHERE userID = %s))"
-        params = [userID]
-        res = db.executeQuery(query, params)
+        query = "INSERT INTO TimeSheets(rate, description, lineItems) VALUES\
+                (NULL, NULL, NULL)"
+        res = db.executeQuery(query, [])
         return True if res else False
 
     def saveSheet(self, db: object, rate: float,

@@ -24,28 +24,28 @@ config = AppConfig(
 # setup flask server and database
 app = Flask(__name__)
 app.secret_key = config.secret_key
-db = Database(config)
 
+
+db = Database(config)
 timeSheet = TimeSheet()
 
 
-# routes
 @app.route('/', methods=["GET", "POST"])
 def home():
     if request.method == "GET":
-        items = timeSheet.getSheets(db, 1)
+        items = timeSheet.getSheets(db)
+        print(items)
         for item in items:
-            if item[4]:
-                item[4] = json.loads(item[4])
-        for value in items[0][4].values():
-            print(value)
-        return render_template("index.j2", items=items, userID=1)
+            print(item)
+            if item[3]:
+                item[3] = json.loads(item[3])
+                print(item[3])
+        return render_template("index.j2", items=items)
 
 
 @app.route('/create', methods=["GET"])
 def createSheet():
-    userID = request.args.get('userID')
-    timeSheet.createSheet(db, userID)
+    timeSheet.createSheet(db)
     return redirect(url_for('home'))
 
 
@@ -66,7 +66,7 @@ def saveSheet():
     if res:
         print("success")
     else:
-        print("loser bitch")
+        print("error")
     return redirect(url_for('home'))
 
 
