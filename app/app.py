@@ -4,9 +4,9 @@ import json
 from flask import Flask, render_template, request, redirect, url_for
 from dotenv import load_dotenv
 
-from database import Database
-from appConfig import AppConfig
-from timeSheet import TimeSheet
+from .database import Database
+from .appConfig import AppConfig
+from .timeSheet import TimeSheet
 
 
 # setup config
